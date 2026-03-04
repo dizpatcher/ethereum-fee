@@ -15,3 +15,10 @@ __pycache__/
 
 # MacOS
 .DS_Store
+
+.env
+
+# Мусор
+data/
+notebooks/data
+logs/
