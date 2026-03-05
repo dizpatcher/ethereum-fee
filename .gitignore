@@ -8,6 +8,7 @@ __pycache__/
 
 # Environment variables
 .env
+*.env
 
 # IDE
 .vscode/
@@ -15,8 +16,6 @@ __pycache__/
 
 # MacOS
 .DS_Store
-
-.env
 
 # Мусор
 data/
