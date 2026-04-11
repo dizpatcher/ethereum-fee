@@ -21,3 +21,6 @@ __pycache__/
 data/
 notebooks/data
 logs/
+
+# Airflow
+*.cfg
