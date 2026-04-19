@@ -24,3 +24,6 @@ logs/
 
 # Airflow
 *.cfg
+
+## ML-models
+models/
