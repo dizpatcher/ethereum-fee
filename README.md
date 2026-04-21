@@ -2,6 +2,7 @@
 
 Структура проекта
 
+```
 fee_prediction/
 ├── backend/
 │   ├── main.py           — FastAPI сервер
@@ -13,7 +14,10 @@ fee_prediction/
 ├── notebooks/
 ├── airflow/
 ├── scripts/
+```
 
 Как запустить
 
+```
 cd backend && python3 -m uvicorn main:app --reload
+```
