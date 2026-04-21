@@ -27,8 +27,20 @@ fee_prediction/
 └── start.sh              — запуск обоих сервисов
 ```
 
-Как запустить
+Запуск:
 
 ```
+cd fee_prediction
+./start.sh
+```
+
+Или по отдельности:
+```
+### терминал 1
 cd backend && python3 -m uvicorn main:app --reload
+```
+
+```
+# терминал 2
+cd frontend && npm run dev
 ```
