@@ -16,10 +16,52 @@ logger = logging.getLogger(__name__)
 EL_NODE_URL = os.getenv("EL_NODE_URL", "")
 COINGECKO_API_KEY = os.getenv("COINGECKO_API_KEY", "")
 
+# Установить MOCK_MODE=1 в .env чтобы не делать реальные запросы к RPC и CoinGecko
+MOCK_MODE = os.getenv("MOCK_MODE", "0") == "1"
+
 # Общее состояние — импортируется из помощью main.py и predictor.py
 block_cache: deque = deque(maxlen=500)
 eth_price_cache: dict = {"price": 0.0, "updated_at": None}
 _update_counter = 0
+
+
+# ---------------------------------------------------------------------------
+# Mock helpers
+# ---------------------------------------------------------------------------
+
+
+def _mock_blocks(count: int, start_height: int = 24_900_000) -> list[dict]:
+    """Генерирует синтетические блоки с реалистичными значениями."""
+    import random
+
+    base_fee = 40_000_000_000  # 40 Gwei
+    blocks = []
+    for i in range(count):
+        # Имитируем небольшие флуктуации base fee
+        base_fee = int(base_fee * random.uniform(0.97, 1.03))
+        base_fee = max(1_000_000_000, min(200_000_000_000, base_fee))
+        gas_limit = 60_000_000
+        utilization = random.uniform(0.4, 0.8)
+        gas_used = int(gas_limit * utilization)
+        blocks.append(
+            {
+                "height": start_height + i,
+                "base_fee_per_gas": base_fee,
+                "gas_limit": gas_limit,
+                "gas_used": gas_used,
+                "transaction_count": random.randint(100, 300),
+                "block_utilization": round(utilization, 6),
+                "gas_pressure": gas_used - gas_limit // 2,
+                "tx_per_gas": random.randint(100, 300) / max(gas_used, 1),
+                "size": random.randint(80_000, 250_000),
+                "priority_p25": random.randint(1_000_000, 10_000_000),
+                "priority_p50": random.randint(10_000_000, 50_000_000),
+                "priority_p90": random.randint(50_000_000, 500_000_000),
+                "priority_p95": random.randint(500_000_000, 2_000_000_000),
+                "last_eth_price": 2350.0,
+            }
+        )
+    return blocks
 
 
 async def _rpc(client: httpx.AsyncClient, method: str, params: list):
@@ -101,6 +143,14 @@ async def _build_blocks(client: httpx.AsyncClient, block_count: int) -> list[dic
 async def init_cache() -> None:
     """Вызывается единожды только на старте —
     изначально заполняет кэш блоков с ~400 историческими блоками"""
+    if MOCK_MODE:
+        logger.warning("MOCK_MODE=1: реальные запросы к RPC и CoinGecko отключены")
+        eth_price_cache["price"] = 2350.0
+        eth_price_cache["updated_at"] = datetime.utcnow()
+        block_cache.extend(_mock_blocks(400))
+        logger.info("Block cache initialised (mock): %d blocks", len(block_cache))
+        return
+
     async with httpx.AsyncClient() as client:
         # сначала получаем цену ETH чтобы добавить её в данные блока
         price = await _fetch_eth_price(client)
@@ -120,6 +170,12 @@ async def update_cache() -> None:
     """Вызов каждый ~12 секунд  — добавляем инфо о новых блоках и цену ETH"""
     global _update_counter
     _update_counter += 1
+
+    if MOCK_MODE:
+        # В режиме заглушки добавляем 1 синтетический блок поверх последнего
+        last_height = block_cache[-1]["height"] if block_cache else 24_900_000
+        block_cache.extend(_mock_blocks(1, start_height=last_height + 1))
+        return
 
     async with httpx.AsyncClient() as client:
         # Обновляем цену ETH каждый ~5 мин (25 × 12 с)

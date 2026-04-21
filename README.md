@@ -44,3 +44,7 @@ cd backend && python3 -m uvicorn main:app --reload
 # терминал 2
 cd frontend && npm run dev
 ```
+
+Как работает бэкенд: при старте делает eth_feeHistory(400, 'latest', [25,50,90,95]) — один RPC вызов даёт данные по последним 400 блокам (base fee + priority fee percentiles). Каждые 12 секунд догружает новые блоки. Модели выбирают нужные фичи автоматически через model.feature_name_.
+
+Интеграция крипто-кошельков: кнопки "Открыть в кошельке" вызывают window.ethereum.request({ method: 'eth_sendTransaction' }) с предзаполненными maxFeePerGas и maxPriorityFeePerGas из предсказания модели. Работает с MetaMask и Rabby Wallet (оба реализуют EIP-1193).
