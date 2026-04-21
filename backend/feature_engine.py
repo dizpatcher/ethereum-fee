@@ -17,9 +17,7 @@ def compute_all_features(blocks: list[dict]) -> dict:
     current = blocks[-1]
     now = datetime.utcnow()
 
-    # ------------------------------------------------------------------
     # Сырые массивы
-    # ------------------------------------------------------------------
     base_fees = np.array([b["base_fee_per_gas"] for b in blocks], dtype=float)
     utilization = np.array([b["block_utilization"] for b in blocks], dtype=float)
     gas_used = np.array([b["gas_used"] for b in blocks], dtype=float)
@@ -32,9 +30,7 @@ def compute_all_features(blocks: list[dict]) -> dict:
 
     f: dict = {}
 
-    # ------------------------------------------------------------------
     # Общие фичи по текущему блоку
-    # ------------------------------------------------------------------
     f["size"] = float(current.get("size", 150_000))
     f["gas_limit"] = float(current["gas_limit"])
     f["gas_used"] = float(current["gas_used"])
@@ -57,9 +53,7 @@ def compute_all_features(blocks: list[dict]) -> dict:
     f["fee_ratio"] = float(p50[-1] / base_fees[-1]) if base_fees[-1] > 0 else 0.0
     f["fee_diff"] = float(p50[-1] - base_fees[-1])
 
-    # ------------------------------------------------------------------
     # Временные признаки
-    # ------------------------------------------------------------------
     f["month"] = float(now.month)
     f["day"] = float(now.day)
     f["hour"] = float(now.hour)
@@ -87,9 +81,7 @@ def compute_all_features(blocks: list[dict]) -> dict:
     for k in [1, 2, 3, 5, 10]:
         f[f"util_lag_{k}"] = lag(utilization, k)
 
-    # ------------------------------------------------------------------
     # Скользящие средние и волатильности
-    # ------------------------------------------------------------------
     def ma(arr, w):
         return float(np.mean(arr[max(0, n - w) :]))
 
@@ -128,13 +120,11 @@ def compute_all_features(blocks: list[dict]) -> dict:
     prev_tx = float(tx_count[-2]) if n > 1 else float(tx_count[-1])
     f["tx_change"] = (float(tx_count[-1]) - prev_tx) / prev_tx if prev_tx > 0 else 0.0
 
-    # ------------------------------------------------------------------
     # Признаки на основе цены ETH
     # В Ethereum 1 блок выпускается каждые 12с:
     #   1 мин    ≈  5 блоков
     #   10 мин   ≈  50 блоков
     #   1 час    ≈  300 блоков
-    # ------------------------------------------------------------------
     def eth_return(lookback_blocks: int) -> float:
         idx = max(0, n - 1 - lookback_blocks)
         p_then = float(eth_prices[idx])
@@ -158,11 +148,9 @@ def compute_all_features(blocks: list[dict]) -> dict:
     f["eth_return_7d"] = eth_return(n - 1)
     f["eth_vol_7d"] = f["eth_vol_1d"] * np.sqrt(7)
 
-    # ------------------------------------------------------------------
     # Ежедневные/еженедельные агрегаты
     # Полностью корректный lag_1d должен быть 7200 блоков назад. Берём последний доступный
     # блок как приближение (в кэше ~400 блоков / ~80 мин).
-    # ------------------------------------------------------------------
     f["lag_1d"] = float(base_fees[0])
     f["lag_2d"] = float(base_fees[0])
     f["ma_1d"] = float(np.mean(base_fees))
