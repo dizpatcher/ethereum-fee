@@ -1,0 +1,147 @@
+"""
+Извлечение данных о блоках Ethereum в режиме реального времени с помощью RPC-вызова eth_feeHistory.
+Поддержка постоянного кэша в памяти для последних ~400 блоков.
+"""
+
+import asyncio
+import logging
+import os
+from collections import deque
+from datetime import datetime
+
+import httpx
+
+logger = logging.getLogger(__name__)
+
+EL_NODE_URL = os.getenv("EL_NODE_URL", "")
+COINGECKO_API_KEY = os.getenv("COINGECKO_API_KEY", "")
+
+# Общее состояние — импортируется из помощью main.py и predictor.py
+block_cache: deque = deque(maxlen=500)
+eth_price_cache: dict = {"price": 0.0, "updated_at": None}
+_update_counter = 0
+
+
+async def _rpc(client: httpx.AsyncClient, method: str, params: list):
+    resp = await client.post(
+        EL_NODE_URL,
+        json={"jsonrpc": "2.0", "method": method, "params": params, "id": 1},
+        timeout=30,
+    )
+    resp.raise_for_status()
+    data = resp.json()
+    if "error" in data:
+        raise RuntimeError(f"RPC error: {data['error']}")
+    return data["result"]
+
+
+async def _fetch_eth_price(client: httpx.AsyncClient) -> float:
+    try:
+        resp = await client.get(
+            "https://api.coingecko.com/api/v3/simple/price",
+            params={"ids": "ethereum", "vs_currencies": "usd"},
+            headers={"x-cg-demo-api-key": COINGECKO_API_KEY},
+            timeout=10,
+        )
+        return float(resp.json()["ethereum"]["usd"])
+    except Exception as exc:
+        logger.warning("CoinGecko price fetch failed: %s", exc)
+        return float(eth_price_cache.get("price") or 2000.0)
+
+
+async def _build_blocks(client: httpx.AsyncClient, block_count: int) -> list[dict]:
+    """
+    Один вызов eth_feeHistory метода возвращает базовую комиссию, использованный газ
+    и награду валидатору (=priority fees) персентили (P25/P50/P90/P95) для последних N блоков.
+    https://www.quicknode.com/docs/ethereum/eth_feeHistory
+    """
+    fee_hist = await _rpc(
+        client,
+        "eth_feeHistory",
+        [hex(block_count), "latest", [25, 50, 90, 95]],
+    )
+    latest_blk = await _rpc(client, "eth_getBlockByNumber", ["latest", False])
+
+    oldest_block = int(fee_hist["oldestBlock"], 16)
+    base_fees = [int(bf, 16) for bf in fee_hist["baseFeePerGas"][:-1]]
+    gas_ratios = fee_hist["gasUsedRatio"]
+    rewards = fee_hist.get("reward", [])
+
+    gas_limit = int(latest_blk["gasLimit"], 16)
+    tx_count = len(latest_blk["transactions"])
+    size = int(latest_blk.get("size", "0x25000"), 16)
+    eth_price = float(eth_price_cache.get("price") or 2000.0)
+
+    blocks = []
+    for i, (bf, ratio) in enumerate(zip(base_fees, gas_ratios)):
+        reward = rewards[i] if i < len(rewards) else ["0x0", "0x0", "0x0", "0x0"]
+        gas_used = int(ratio * gas_limit)
+
+        blocks.append(
+            {
+                "height": oldest_block + i,
+                "base_fee_per_gas": bf,
+                "gas_limit": gas_limit,
+                "gas_used": gas_used,
+                "transaction_count": tx_count,
+                "block_utilization": ratio,
+                "gas_pressure": gas_used - gas_limit / 2,
+                "tx_per_gas": tx_count / gas_used if gas_used > 0 else 0.0,
+                "size": size,
+                "priority_p25": int(reward[0], 16) if len(reward) > 0 else 0,
+                "priority_p50": int(reward[1], 16) if len(reward) > 1 else 0,
+                "priority_p90": int(reward[2], 16) if len(reward) > 2 else 0,
+                "priority_p95": int(reward[3], 16) if len(reward) > 3 else 0,
+                "last_eth_price": eth_price,
+            }
+        )
+    return blocks
+
+
+async def init_cache() -> None:
+    """Вызывается единожды только на старте —
+    изначально заполняет кэш блоков с ~400 историческими блоками"""
+    async with httpx.AsyncClient() as client:
+        # сначала получаем цену ETH чтобы добавить её в данные блока
+        price = await _fetch_eth_price(client)
+        eth_price_cache["price"] = price
+        eth_price_cache["updated_at"] = datetime.utcnow()
+
+        blocks = await _build_blocks(client, 400)
+        # проставляем цену ETH в блок
+        for b in blocks:
+            b["last_eth_price"] = price
+        block_cache.extend(blocks)
+
+    logger.info("Block cache initialised: %d blocks", len(block_cache))
+
+
+async def update_cache() -> None:
+    """Вызов каждый ~12 секунд  — добавляем инфо о новых блоках и цену ETH"""
+    global _update_counter
+    _update_counter += 1
+
+    async with httpx.AsyncClient() as client:
+        # Обновляем цену ETH каждый ~5 мин (25 × 12 с)
+        if _update_counter % 25 == 0:
+            price = await _fetch_eth_price(client)
+            eth_price_cache["price"] = price
+            eth_price_cache["updated_at"] = datetime.utcnow()
+
+        new_blocks = await _build_blocks(client, 5)
+
+    if not block_cache:
+        block_cache.extend(new_blocks)
+        return
+
+    latest_cached = block_cache[-1]["height"]
+    eth_price = float(eth_price_cache.get("price") or 2000.0)
+    added = 0
+    for blk in new_blocks:
+        if blk["height"] > latest_cached:
+            blk["last_eth_price"] = eth_price
+            block_cache.append(blk)
+            added += 1
+
+    if added:
+        logger.info("Added %d block(s), cache size: %d", added, len(block_cache))
