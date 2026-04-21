@@ -4,6 +4,9 @@
 
 ```
 fee_prediction/
+├── notebooks/
+├── airflow/
+├── scripts/
 ├── backend/
 │   ├── main.py           — FastAPI сервер
 │   ├── data_fetcher.py   — eth_feeHistory + CoinGecko
@@ -11,9 +14,17 @@ fee_prediction/
 │   ├── predictor.py      — загрузка 10 моделей + предсказания
 │   ├── requirements.txt
 │   └── .env
-├── notebooks/
-├── airflow/
-├── scripts/
+├── frontend/
+│   └── src/
+│       ├── components/
+│       │   ├── Header.tsx         — шапка + кнопка кошелька
+│       │   ├── StatsRow.tsx       — ETH цена / текущий газ / стоимость трансфера
+│       │   ├── PredictionGrid.tsx — карточки прогноза
+│       │   ├── FeeChart.tsx       — stacked bar chart (Recharts)
+│       │   └── TransactionEstimator.tsx — форма + MetaMask/Rabby
+│       ├── hooks/useGasData.ts   — опрос API каждые 15 с
+│       └── hooks/useWallet.ts    — подключение кошелька по EIP-1193
+└── start.sh              — запуск обоих сервисов
 ```
 
 Как запустить
