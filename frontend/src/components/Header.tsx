@@ -9,7 +9,7 @@ interface Props {
 
 function EthLogo() {
   return (
-    <svg viewBox="0 0 24 24" className="w-7 h-7 fill-current text-fa-bright">
+    <svg viewBox="0 0 24 24" className="w-7 h-7 fill-current text-fa-bright flex-shrink-0">
       <path d="M11.998 0L5 12.239l6.998 4.131 7-4.131L11.998 0zm0 16.37l-6.998-4.131 6.998 9.761 7.002-9.761-7.002 4.131z" />
     </svg>
   );
@@ -31,36 +31,35 @@ export default function Header({ wallet, ethPrice, currency, onToggleCurrency }:
       className="sticky top-0 z-50 backdrop-blur-xl"
       style={{ borderBottom: '1px solid rgba(0,152,175,0.14)', background: 'rgba(5,13,14,0.75)' }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-        {/* Logo */}
-        <div className="flex items-center gap-2.5">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 grid grid-cols-3 items-center gap-2">
+
+        {/* LEFT: логотип */}
+        <div className="flex items-center gap-2.5 min-w-0">
           <EthLogo />
-          <div className="leading-tight">
+          <div className="leading-tight min-w-0">
             <span className="font-bold text-white tracking-tight">GasForecast</span>
-            <span className="hidden sm:block text-[11px] leading-none" style={{ color: 'rgba(0,152,175,0.7)' }}>
+            <span className="hidden md:block text-[11px] leading-none truncate" style={{ color: 'rgba(0,152,175,0.7)' }}>
               Ethereum Fee Predictor
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          {/* ETH Price + переключатель валюты */}
+        {/* CENTER: цена ETH + переключатель валюты */}
+        <div className="flex justify-center">
           {ethPrice != null && (
             <div
-              className="hidden sm:flex items-center rounded-xl overflow-hidden"
+              className="flex items-center rounded-xl overflow-hidden"
               style={{ border: '1px solid rgba(0,152,175,0.2)' }}
             >
-              {/* Цена */}
               <div
                 className="flex items-center gap-2 px-3 py-1.5 text-sm"
                 style={{ background: 'rgba(37,101,105,0.15)' }}
               >
                 <span className="text-fa-bright text-xs font-medium">ETH</span>
-                <span className="font-mono font-semibold text-white">
+                <span className="font-mono font-semibold text-white whitespace-nowrap">
                   {formatPrice(ethPrice, currency)}
                 </span>
               </div>
-              {/* Кнопка переключения */}
               <button
                 onClick={onToggleCurrency}
                 className="px-2.5 py-1.5 text-xs font-bold transition-all"
@@ -75,29 +74,14 @@ export default function Header({ wallet, ethPrice, currency, onToggleCurrency }:
               </button>
             </div>
           )}
+        </div>
 
-          {/* Переключатель на мобиле (без цены) */}
-          {ethPrice != null && (
-            <button
-              onClick={onToggleCurrency}
-              className="sm:hidden px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all"
-              style={{ background: 'rgba(0,107,128,0.25)', border: '1px solid rgba(0,152,175,0.2)', color: '#0098AF' }}
-            >
-              {currency === 'RUB' ? '→ $' : '→ ₽'}
-            </button>
-          )}
-
-          {error && (
-            <span className="hidden sm:inline text-xs max-w-[200px] truncate" style={{ color: '#ff6b70' }}>
-              {error}
-            </span>
-          )}
-
-          {/* Кнопка кошелька */}
+        {/* RIGHT: кнопка кошелька + ошибка под ней */}
+        <div className="flex flex-col items-end gap-1 min-w-0">
           <button
             onClick={account ? disconnect : connect}
             disabled={connecting}
-            className="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 disabled:opacity-50"
+            className="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 disabled:opacity-50 whitespace-nowrap"
             style={
               account
                 ? { background: 'rgba(0,107,128,0.18)', border: '1px solid rgba(0,152,175,0.35)', color: '#0098AF' }
@@ -118,7 +102,18 @@ export default function Header({ wallet, ethPrice, currency, onToggleCurrency }:
               'Подключить кошелёк'
             )}
           </button>
+
+          {/* Ошибка — под кнопкой, не ломает строку */}
+          {error && (
+            <span
+              className="text-[11px] leading-tight text-right max-w-[200px]"
+              style={{ color: '#ff6b70' }}
+            >
+              {error}
+            </span>
+          )}
         </div>
+
       </div>
     </header>
   );
