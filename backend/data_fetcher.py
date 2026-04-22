@@ -87,8 +87,8 @@ async def _fetch_eth_price(client: httpx.AsyncClient) -> tuple[float, float]:
     except Exception as exc:
         logger.warning("CoinGecko price fetch failed: %s", exc)
         return (
-            float(eth_price_cache.get("usd") or 2000.0),
-            float(eth_price_cache.get("rub") or 180_000.0),
+            float(eth_price_cache.get("usd") or 2394.94),
+            float(eth_price_cache.get("rub") or 179857.0),
         )
 
 
@@ -113,7 +113,7 @@ async def _build_blocks(client: httpx.AsyncClient, block_count: int) -> list[dic
     gas_limit = int(latest_blk["gasLimit"], 16)
     tx_count = len(latest_blk["transactions"])
     size = int(latest_blk.get("size", "0x25000"), 16)
-    eth_price = float(eth_price_cache.get("usd") or 2000.0)
+    eth_price = float(eth_price_cache.get("usd") or 2394.0)
 
     blocks = []
     for i, (bf, ratio) in enumerate(zip(base_fees, gas_ratios)):
@@ -164,7 +164,7 @@ async def init_cache() -> None:
         blocks = await _build_blocks(client, 400)
         # проставляем цену ETH в блок
         for b in blocks:
-            b["last_eth_price"] = price
+            b["last_eth_price"] = usd
         block_cache.extend(blocks)
 
     logger.info("Block cache initialised: %d blocks", len(block_cache))
@@ -196,7 +196,7 @@ async def update_cache() -> None:
         return
 
     latest_cached = block_cache[-1]["height"]
-    eth_price = float(eth_price_cache.get("usd") or 2000.0)
+    eth_price = float(eth_price_cache.get("usd") or 2394.0)
     added = 0
     for blk in new_blocks:
         if blk["height"] > latest_cached:

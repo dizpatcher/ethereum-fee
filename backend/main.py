@@ -93,5 +93,6 @@ async def health():
     return {
         "status": "ok",
         "blocks_cached": len(block_cache),
-        "eth_price": eth_price_cache.get("price"),
+        "eth_price_usd": eth_price_cache.get("usd"),
+        "eth_price_rub": eth_price_cache.get("rub"),
     }
