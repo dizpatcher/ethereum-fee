@@ -37,9 +37,9 @@ export default function Header({ wallet, ethPrice, currency, onToggleCurrency }:
         <div className="flex items-center gap-2.5 min-w-0">
           <EthLogo />
           <div className="leading-tight min-w-0">
-            <span className="font-bold text-white tracking-tight">GasForecast</span>
+            <span className="font-bold text-white tracking-tight">ФлексКомиссия</span>
             <span className="hidden md:block text-[11px] leading-none truncate" style={{ color: 'rgba(0,152,175,0.7)' }}>
-              Ethereum Fee Predictor
+              Сервис прогнозирования транзакционных издержек на примере Ethereum
             </span>
           </div>
         </div>
