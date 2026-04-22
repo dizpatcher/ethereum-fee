@@ -79,7 +79,8 @@ async def gas_data():
         return {"error": "Кэш прогревается, повторите попытку через несколько секунд"}
 
     return {
-        "eth_price": eth_price_cache.get("price"),
+        "eth_price_usd": eth_price_cache.get("usd"),
+        "eth_price_rub": eth_price_cache.get("rub"),
         "current": get_current_gas(blocks),
         "predictions": predict_all(blocks),
         "gas_units": GAS_UNITS,

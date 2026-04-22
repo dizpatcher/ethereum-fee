@@ -19,17 +19,13 @@ COINGECKO_API_KEY = os.getenv("COINGECKO_API_KEY", "")
 # Установить MOCK_MODE=1 в .env чтобы не делать реальные запросы к RPC и CoinGecko
 MOCK_MODE = os.getenv("MOCK_MODE", "0") == "1"
 
-# Общее состояние — импортируется из помощью main.py и predictor.py
+# Общее состояние — импортируется main.py и predictor.py
 block_cache: deque = deque(maxlen=500)
-eth_price_cache: dict = {"price": 0.0, "updated_at": None}
+eth_price_cache: dict = {"usd": 0.0, "rub": 0.0, "updated_at": None}
 _update_counter = 0
 
 
-# ---------------------------------------------------------------------------
-# Mock helpers
-# ---------------------------------------------------------------------------
-
-
+# Замоканные данные
 def _mock_blocks(count: int, start_height: int = 24_900_000) -> list[dict]:
     """Генерирует синтетические блоки с реалистичными значениями."""
     import random
@@ -77,18 +73,23 @@ async def _rpc(client: httpx.AsyncClient, method: str, params: list):
     return data["result"]
 
 
-async def _fetch_eth_price(client: httpx.AsyncClient) -> float:
+async def _fetch_eth_price(client: httpx.AsyncClient) -> tuple[float, float]:
+    """Возвращает (usd, rub) — один запрос, две валюты."""
     try:
         resp = await client.get(
             "https://api.coingecko.com/api/v3/simple/price",
-            params={"ids": "ethereum", "vs_currencies": "usd"},
+            params={"ids": "ethereum", "vs_currencies": "usd,rub"},
             headers={"x-cg-demo-api-key": COINGECKO_API_KEY},
             timeout=10,
         )
-        return float(resp.json()["ethereum"]["usd"])
+        data = resp.json()["ethereum"]
+        return float(data["usd"]), float(data["rub"])
     except Exception as exc:
         logger.warning("CoinGecko price fetch failed: %s", exc)
-        return float(eth_price_cache.get("price") or 2000.0)
+        return (
+            float(eth_price_cache.get("usd") or 2000.0),
+            float(eth_price_cache.get("rub") or 180_000.0),
+        )
 
 
 async def _build_blocks(client: httpx.AsyncClient, block_count: int) -> list[dict]:
@@ -112,7 +113,7 @@ async def _build_blocks(client: httpx.AsyncClient, block_count: int) -> list[dic
     gas_limit = int(latest_blk["gasLimit"], 16)
     tx_count = len(latest_blk["transactions"])
     size = int(latest_blk.get("size", "0x25000"), 16)
-    eth_price = float(eth_price_cache.get("price") or 2000.0)
+    eth_price = float(eth_price_cache.get("usd") or 2000.0)
 
     blocks = []
     for i, (bf, ratio) in enumerate(zip(base_fees, gas_ratios)):
@@ -143,9 +144,11 @@ async def _build_blocks(client: httpx.AsyncClient, block_count: int) -> list[dic
 async def init_cache() -> None:
     """Вызывается единожды только на старте —
     изначально заполняет кэш блоков с ~400 историческими блоками"""
+
     if MOCK_MODE:
         logger.warning("MOCK_MODE=1: реальные запросы к RPC и CoinGecko отключены")
-        eth_price_cache["price"] = 2350.0
+        eth_price_cache["usd"] = 2350.0
+        eth_price_cache["rub"] = 215_000.0
         eth_price_cache["updated_at"] = datetime.utcnow()
         block_cache.extend(_mock_blocks(400))
         logger.info("Block cache initialised (mock): %d blocks", len(block_cache))
@@ -153,8 +156,9 @@ async def init_cache() -> None:
 
     async with httpx.AsyncClient() as client:
         # сначала получаем цену ETH чтобы добавить её в данные блока
-        price = await _fetch_eth_price(client)
-        eth_price_cache["price"] = price
+        usd, rub = await _fetch_eth_price(client)
+        eth_price_cache["usd"] = usd
+        eth_price_cache["rub"] = rub
         eth_price_cache["updated_at"] = datetime.utcnow()
 
         blocks = await _build_blocks(client, 400)
@@ -180,8 +184,9 @@ async def update_cache() -> None:
     async with httpx.AsyncClient() as client:
         # Обновляем цену ETH каждый ~5 мин (25 × 12 с)
         if _update_counter % 25 == 0:
-            price = await _fetch_eth_price(client)
-            eth_price_cache["price"] = price
+            usd, rub = await _fetch_eth_price(client)
+            eth_price_cache["usd"] = usd
+            eth_price_cache["rub"] = rub
             eth_price_cache["updated_at"] = datetime.utcnow()
 
         new_blocks = await _build_blocks(client, 5)
@@ -191,7 +196,7 @@ async def update_cache() -> None:
         return
 
     latest_cached = block_cache[-1]["height"]
-    eth_price = float(eth_price_cache.get("price") or 2000.0)
+    eth_price = float(eth_price_cache.get("usd") or 2000.0)
     added = 0
     for blk in new_blocks:
         if blk["height"] > latest_cached:

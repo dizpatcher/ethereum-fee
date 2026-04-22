@@ -21,7 +21,8 @@ export interface GasUnit {
 }
 
 export interface GasData {
-  eth_price: number;
+  eth_price_usd: number;
+  eth_price_rub: number;
   current: CurrentGas;
   predictions: Record<string, Prediction>;
   gas_units: Record<string, GasUnit>;
@@ -36,3 +37,5 @@ export interface WalletState {
   disconnect: () => void;
   sendTransaction: (params: Record<string, string>) => Promise<unknown>;
 }
+
+export type Currency = 'RUB' | 'USD';
