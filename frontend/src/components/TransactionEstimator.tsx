@@ -15,6 +15,7 @@ const HORIZONS = [
   { key: '10m',        label: '+10 мин' },
   { key: '1h',         label: '+1 час' },
   { key: '1d',         label: '+1 день' },
+  { key: '1w',         label: '+1 неделя'},
 ];
 
 const INPUT_CLASS =
