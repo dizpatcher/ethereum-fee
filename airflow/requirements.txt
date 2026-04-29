@@ -1,3 +1,7 @@
+# Google Cloud BigQuery (для DAG-ов сбора данных)
+google-cloud-bigquery[pandas]>=3.25.0
+db-dtypes>=1.2.0
+pyarrow>=14.0.0
 aiohappyeyeballs==2.6.1
 aiohttp==3.13.3
 aiosignal==1.4.0

@@ -76,11 +76,22 @@ x-airflow-common:
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
     # The following line can be used to set a custom config file, stored in the local config folder
     AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
+    # === MLOps: Ethereum fee prediction ===
+    # GCP service-account JSON: скопируйте ключ в airflow/config/gcp-key.json
+    GOOGLE_APPLICATION_CREDENTIALS: '/opt/airflow/config/gcp-key.json'
+    GCP_PROJECT_ID: ${GCP_PROJECT_ID:-}
+    COINGECKO_API_KEY: ${COINGECKO_API_KEY:-}
+    ETH_DATA_DIR: '/opt/airflow/eth_data'
+    ETH_MODELS_DIR: '/opt/airflow/eth_models'
   volumes:
     - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
     - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
     - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
+    # MLOps data (коллектированные данные из BigQuery/CoinGecko)
+    - ${AIRFLOW_PROJ_DIR:-.}/data:/opt/airflow/eth_data
+    # Production-модели (монтируем notebooks/models, чтобы после обучения бэкенд сразу видел новые модели)
+    - ${AIRFLOW_PROJ_DIR:-.}/../notebooks/models:/opt/airflow/eth_models
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
