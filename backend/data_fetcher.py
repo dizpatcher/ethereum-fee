@@ -147,8 +147,8 @@ async def init_cache() -> None:
 
     if MOCK_MODE:
         logger.warning("MOCK_MODE=1: реальные запросы к RPC и CoinGecko отключены")
-        eth_price_cache["usd"] = 2350.0
-        eth_price_cache["rub"] = 215_000.0
+        eth_price_cache["usd"] = 2354.0
+        eth_price_cache["rub"] = 215_241.0
         eth_price_cache["updated_at"] = datetime.utcnow()
         block_cache.extend(_mock_blocks(400))
         logger.info("Block cache initialised (mock): %d blocks", len(block_cache))
