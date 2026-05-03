@@ -1,0 +1,4 @@
+[core]
+    remote = local_remote
+['remote "local_remote"']
+    url = /Users/vyrodov/dvc-storage/fee-prediction
