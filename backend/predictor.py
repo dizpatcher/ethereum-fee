@@ -58,9 +58,8 @@ def _run(model, features: dict) -> float | None:
         return None
     try:
         names = model.feature_name_
-        row = {n: features.get(n, 0.0) for n in names}
-        df = pd.DataFrame([row])
-        val = float(model.predict(df)[0])
+        row = np.array([[features.get(n, 0.0) for n in names]])
+        val = float(model.booster_.predict(row)[0])
         return max(0.0, val)
     except Exception as exc:
         logger.error("Prediction error: %s", exc)
