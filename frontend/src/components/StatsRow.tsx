@@ -40,34 +40,34 @@ export default function StatsRow({ current, ethPriceUsd, ethPriceRub, currency, 
     <section className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
       {/* ETH Price */}
       <div className="glass-card p-5 flex flex-col gap-2">
-        <span className="text-xs font-medium uppercase tracking-widest" style={{ color: 'rgba(0,152,175,0.6)' }}>
+        <span className="text-xs font-medium uppercase tracking-widest" style={{ color: 'rgba(37,101,105,0.65)' }}>
           Цена ETH
         </span>
         <span className="stat-value gradient-text">
           {ethPriceFormatted(ethPriceUsd, ethPriceRub, currency)}
         </span>
-        <span className="text-xs text-white/30">Обновлено: {updated}</span>
+        <span className="text-xs" style={{ color: 'rgba(37,101,105,0.45)' }}>Обновлено: {updated}</span>
       </div>
 
       {/* Current Base Fee */}
       <div className="glass-card p-5 flex flex-col gap-2">
-        <span className="text-xs font-medium uppercase tracking-widest" style={{ color: 'rgba(0,152,175,0.6)' }}>
+        <span className="text-xs font-medium uppercase tracking-widest" style={{ color: 'rgba(37,101,105,0.65)' }}>
           Текущая Base Fee
         </span>
         <div className="flex items-end gap-2">
-          <span className="stat-value text-fa-bright">
+          <span className="stat-value text-fa-dark">
             {current.base_fee_gwei.toFixed(3)}
           </span>
-          <span className="text-white/40 mb-0.5 text-sm">Gwei</span>
+          <span className="mb-0.5 text-sm" style={{ color: 'rgba(37,101,105,0.55)' }}>Gwei</span>
         </div>
-        <div className="text-xs text-white/40">
+        <div className="text-xs" style={{ color: 'rgba(37,101,105,0.55)' }}>
           Priority: +{current.priority_fee_gwei.toFixed(3)} Gwei
         </div>
       </div>
 
       {/* Стоимость перевода ETH прямо сейчас */}
       <div className="glass-card p-5 flex flex-col gap-2">
-        <span className="text-xs font-medium uppercase tracking-widest" style={{ color: 'rgba(0,152,175,0.6)' }}>
+        <span className="text-xs font-medium uppercase tracking-widest" style={{ color: 'rgba(37,101,105,0.65)' }}>
           Перевод ETH сейчас
         </span>
         <div className="flex items-end gap-2">
@@ -75,7 +75,7 @@ export default function StatsRow({ current, ethPriceUsd, ethPriceRub, currency, 
             {fiatCost(current.total_gwei, 21_000, ethPriceUsd, ethPriceRub, currency)}
           </span>
         </div>
-        <div className="flex items-center gap-2 text-xs text-white/40">
+        <div className="flex items-center gap-2 text-xs" style={{ color: 'rgba(37,101,105,0.55)' }}>
           <UtilDot pct={current.block_utilization} />
           <span>Блок #{current.block_number?.toLocaleString()}</span>
           <span>·</span>

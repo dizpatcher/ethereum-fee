@@ -44,7 +44,7 @@ function PredictionCard({
       <div className="flex items-center justify-between">
         <span className="text-lg">{cfg.icon}</span>
         <span className="text-xs font-medium px-2 py-0.5 rounded-full"
-              style={{ background: `${cfg.color}18`, color: cfg.color }}>
+              style={{ background: `${cfg.color}22`, color: cfg.color }}>
           {cfg.shortLabel}
         </span>
       </div>
@@ -53,19 +53,19 @@ function PredictionCard({
       <div>
         <div className="font-mono text-2xl font-bold" style={{ color: cfg.color }}>
           {pred.total_gwei.toFixed(3)}{' '}
-          <span className="text-sm font-normal text-white/35">Gwei</span>
+          <span className="text-sm font-normal" style={{ color: 'rgba(37,101,105,0.5)' }}>Gwei</span>
         </div>
-        <div className="text-xs text-white/30 mt-0.5">{pred.label}</div>
+        <div className="text-xs mt-0.5" style={{ color: 'rgba(37,101,105,0.5)' }}>{pred.label}</div>
       </div>
 
       {/* Стоимость в фиате для ETH-перевода (21 000 gas) */}
       <div className="text-xs font-mono" style={{ color: cfg.color + 'cc' }}>
         ≈ {gweiToFiat(pred.total_gwei, 21_000, ethPriceUsd, ethPriceRub, currency)}
-        <span className="text-white/25 font-sans ml-1">/ перевод ETH</span>
+        <span className="font-sans ml-1" style={{ color: 'rgba(37,101,105,0.4)' }}>/ перевод ETH</span>
       </div>
 
       {/* Разбивка */}
-      <div className="space-y-1 text-xs text-white/45">
+      <div className="space-y-1 text-xs" style={{ color: 'rgba(37,101,105,0.65)' }}>
         <div className="flex justify-between">
           <span>Base fee</span>
           <span className="font-mono">{pred.base_fee_gwei.toFixed(4)}</span>
@@ -77,7 +77,7 @@ function PredictionCard({
       </div>
 
       {/* Полоска соотношения */}
-      <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+      <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(37,101,105,0.10)' }}>
         <div className="h-full rounded-full"
              style={{ width: `${basePct}%`, background: `linear-gradient(to right, ${cfg.gradFrom}, ${cfg.gradTo})` }} />
       </div>
@@ -89,7 +89,7 @@ export default function PredictionGrid({ predictions, ethPriceUsd, ethPriceRub, 
   const order = ['next_block', '10m', '1h', '1d', '1w'];
   return (
     <section className="mt-8">
-      <h2 className="text-xs font-medium uppercase tracking-widest mb-4" style={{ color: 'rgba(0,152,175,0.55)' }}>
+      <h2 className="text-xs font-medium uppercase tracking-widest mb-4" style={{ color: 'rgba(37,101,105,0.65)' }}>
         Прогноз комиссии сети
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
@@ -100,7 +100,7 @@ export default function PredictionGrid({ predictions, ethPriceUsd, ethPriceRub, 
           ) : null,
         )}
       </div>
-      <p className="mt-3 text-xs text-white/20">
+      <p className="mt-3 text-xs" style={{ color: 'rgba(37,101,105,0.4)' }}>
         * Прогноз на 1 день и 1 неделю является приблизительным из-за ограниченной глубины кэша.
       </p>
     </section>

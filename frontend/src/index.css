@@ -10,47 +10,44 @@
     margin: 0;
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
-    background-color: #050d0e;
-    color: #ffffff;
+    background-color: #f5f9f9;
+    color: #0f2424;
   }
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: rgba(0, 152, 175, 0.25);
+    background: rgba(37, 101, 105, 0.25);
     border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 152, 175, 0.45);
+    background: rgba(37, 101, 105, 0.45);
   }
   select option {
-    background-color: #0d2024;
-    color: #ffffff;
+    background-color: #ffffff;
+    color: #0f2424;
   }
 }
 
 @layer components {
-  /* Стеклянная карточка с лёгким бирюзовым оттенком */
   .glass-card {
-    background: rgba(37, 101, 105, 0.08);
-    backdrop-filter: blur(24px);
-    border: 1px solid rgba(0, 152, 175, 0.14);
+    background: #ffffff;
+    border: 1px solid rgba(37, 101, 105, 0.15);
     border-radius: 1rem;
+    box-shadow: 0 1px 6px rgba(37, 101, 105, 0.07);
   }
   .glass-card-hover {
-    background: rgba(37, 101, 105, 0.08);
-    backdrop-filter: blur(24px);
-    border: 1px solid rgba(0, 152, 175, 0.14);
+    background: #ffffff;
+    border: 1px solid rgba(37, 101, 105, 0.15);
     border-radius: 1rem;
-    transition: background 0.25s, border-color 0.25s, box-shadow 0.25s;
+    box-shadow: 0 1px 6px rgba(37, 101, 105, 0.07);
+    transition: border-color 0.25s, box-shadow 0.25s;
   }
   .glass-card-hover:hover {
-    background: rgba(37, 101, 105, 0.14);
-    border-color: rgba(0, 152, 175, 0.32);
-    box-shadow: 0 0 24px -4px rgba(0, 152, 175, 0.18);
+    border-color: rgba(37, 101, 105, 0.35);
+    box-shadow: 0 4px 16px rgba(37, 101, 105, 0.12);
   }
-  /* Градиентный текст тёмно-бирюзовый → синий */
   .gradient-text {
-    background: linear-gradient(to right, #0098AF, #355CA8);
+    background: linear-gradient(to right, #256569, #355CA8);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -61,18 +58,17 @@
     font-weight: 600;
     font-variant-numeric: tabular-nums;
   }
-  /* Кнопка-пилюля: активный горизонт */
   .pill-active {
-    background: linear-gradient(135deg, #006B80, #0098AF);
+    background: linear-gradient(135deg, #256569, #355CA8);
     color: #fff;
-    box-shadow: 0 0 14px -2px rgba(0, 152, 175, 0.45);
+    box-shadow: 0 2px 8px rgba(37, 101, 105, 0.30);
   }
   .pill-inactive {
-    background: rgba(37, 101, 105, 0.12);
-    color: rgba(255,255,255,0.5);
+    background: rgba(37, 101, 105, 0.08);
+    color: rgba(37, 101, 105, 0.65);
   }
   .pill-inactive:hover {
-    background: rgba(37, 101, 105, 0.22);
-    color: rgba(255,255,255,0.75);
+    background: rgba(37, 101, 105, 0.15);
+    color: #256569;
   }
 }

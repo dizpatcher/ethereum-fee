@@ -10,8 +10,8 @@ import TransactionEstimator from './components/TransactionEstimator';
 function Spinner() {
   return (
     <div className="flex flex-col items-center justify-center h-64 gap-4">
-      <div className="w-10 h-10 border-2 border-fa-bright border-t-transparent rounded-full animate-spin" />
-      <p className="text-white/40 text-sm">Загрузка данных Ethereum…</p>
+      <div className="w-10 h-10 border-2 border-fa-dark border-t-transparent rounded-full animate-spin" />
+      <p className="text-sm" style={{ color: 'rgba(37,101,105,0.55)' }}>Загрузка данных Ethereum…</p>
     </div>
   );
 }
@@ -28,15 +28,15 @@ export default function App() {
     : undefined;
 
   return (
-    <div className="min-h-screen bg-[#050d0e] text-white">
+    <div className="min-h-screen bg-[#f5f9f9] text-[#0f2424]">
       {/* Ambient glow */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none select-none" aria-hidden>
         <div className="absolute -top-72 -left-48 w-[600px] h-[600px] rounded-full blur-3xl"
-             style={{ background: 'radial-gradient(circle, rgba(37,101,105,0.22) 0%, transparent 70%)' }} />
+             style={{ background: 'radial-gradient(circle, rgba(37,101,105,0.08) 0%, transparent 70%)' }} />
         <div className="absolute top-1/3 -right-48 w-[450px] h-[450px] rounded-full blur-3xl"
-             style={{ background: 'radial-gradient(circle, rgba(53,92,168,0.14) 0%, transparent 70%)' }} />
+             style={{ background: 'radial-gradient(circle, rgba(53,92,168,0.06) 0%, transparent 70%)' }} />
         <div className="absolute bottom-0 left-1/3 w-96 h-96 rounded-full blur-3xl"
-             style={{ background: 'radial-gradient(circle, rgba(0,152,175,0.10) 0%, transparent 70%)' }} />
+             style={{ background: 'radial-gradient(circle, rgba(37,101,105,0.05) 0%, transparent 70%)' }} />
       </div>
 
       <div className="relative z-10 flex flex-col min-h-screen">
@@ -52,11 +52,11 @@ export default function App() {
 
           {error && (
             <div className="mt-8 p-4 rounded-xl text-sm"
-                 style={{ background: 'rgba(216,15,22,0.08)', border: '1px solid rgba(216,15,22,0.25)', color: '#ff6b70' }}>
+                 style={{ background: 'rgba(216,15,22,0.06)', border: '1px solid rgba(216,15,22,0.2)', color: '#D80F16' }}>
               <strong>Ошибка подключения к API:</strong> {error}
               <p className="mt-1 text-xs opacity-60">
                 Убедитесь, что бэкенд запущен:{' '}
-                <code className="font-mono">uvicorn main:app --reload</code>
+                <code className="font-mono" style={{ color: '#D80F16' }}>uvicorn main:app --reload</code>
               </p>
             </div>
           )}
@@ -89,8 +89,8 @@ export default function App() {
           )}
         </main>
 
-        <footer className="border-t py-5" style={{ borderColor: 'rgba(0,152,175,0.12)' }}>
-          <p className="text-center text-xs text-white/25">
+        <footer className="border-t py-5" style={{ borderColor: 'rgba(37,101,105,0.15)' }}>
+          <p className="text-center text-xs" style={{ color: 'rgba(37,101,105,0.45)' }}>
             Артём Выродов, DevOps24-1м · ВКР · Прогнозирование транзакционных издержек цифровых валют с MLOps
           </p>
         </footer>

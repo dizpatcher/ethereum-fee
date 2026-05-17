@@ -19,9 +19,9 @@ const HORIZONS = [
 ];
 
 const INPUT_CLASS =
-  'w-full rounded-xl px-3 py-2.5 text-sm text-white placeholder-white/20 focus:outline-none transition-colors font-mono';
-const INPUT_STYLE   = { background: 'rgba(37,101,105,0.10)', border: '1px solid rgba(0,152,175,0.18)' };
-const INPUT_FOCUS   = { borderColor: 'rgba(0,152,175,0.55)' };
+  'w-full rounded-xl px-3 py-2.5 text-sm text-[#0f2424] placeholder-[#256569]/40 focus:outline-none transition-colors font-mono';
+const INPUT_STYLE   = { background: 'rgba(37,101,105,0.06)', border: '1px solid rgba(37,101,105,0.18)' };
+const INPUT_FOCUS   = { borderColor: 'rgba(37,101,105,0.50)' };
 
 const TRANSFER_SELECTOR = '0xa9059cbb';
 function padHex(hex: string, bytes = 32) { return hex.replace('0x', '').padStart(bytes * 2, '0'); }
@@ -32,7 +32,7 @@ function encodeErc20Transfer(to: string, amount: bigint) {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-xs mb-1.5" style={{ color: 'rgba(0,152,175,0.7)' }}>{label}</label>
+      <label className="block text-xs mb-1.5" style={{ color: 'rgba(37,101,105,0.7)' }}>{label}</label>
       {children}
     </div>
   );
@@ -95,7 +95,7 @@ export default function TransactionEstimator({ predictions, gasUnits, ethPriceUs
 
   return (
     <section className="mt-8 glass-card p-6">
-      <h2 className="text-xs font-medium uppercase tracking-widest mb-6" style={{ color: 'rgba(0,152,175,0.55)' }}>
+      <h2 className="text-xs font-medium uppercase tracking-widest mb-6" style={{ color: 'rgba(37,101,105,0.65)' }}>
         Оценка стоимости транзакции
       </h2>
 
@@ -181,13 +181,13 @@ export default function TransactionEstimator({ predictions, gasUnits, ethPriceUs
               {!wallet.account ? (
                 <button onClick={wallet.connect}
                         className="w-full py-3 rounded-xl text-white font-medium text-sm transition-all"
-                        style={{ background: 'linear-gradient(135deg, #006B80, #0098AF)', boxShadow: '0 0 20px -4px rgba(0,152,175,0.45)' }}>
+                        style={{ background: 'linear-gradient(135deg, #256569, #355CA8)', boxShadow: '0 2px 12px rgba(37,101,105,0.30)' }}>
                   Подключить кошелёк для отправки
                 </button>
               ) : (
                 <button onClick={handleSend} disabled={!canSend || status === 'pending'}
                         className="w-full py-3 rounded-xl text-white font-medium text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
-                        style={{ background: 'linear-gradient(135deg, #006B80, #0098AF)', boxShadow: '0 0 20px -4px rgba(0,152,175,0.4)' }}>
+                        style={{ background: 'linear-gradient(135deg, #256569, #355CA8)', boxShadow: '0 2px 12px rgba(37,101,105,0.25)' }}>
                   {status === 'pending' ? (
                     <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Ожидание подтверждения…</>
                   ) : 'Открыть в кошельке'}
@@ -198,13 +198,13 @@ export default function TransactionEstimator({ predictions, gasUnits, ethPriceUs
 
           {status === 'success' && txHash && (
             <div className="p-3 rounded-xl text-xs font-mono break-all"
-                 style={{ background: 'rgba(0,152,175,0.10)', border: '1px solid rgba(0,152,175,0.25)', color: '#0098AF' }}>
+                 style={{ background: 'rgba(37,101,105,0.08)', border: '1px solid rgba(37,101,105,0.25)', color: '#256569' }}>
               ✓ Транзакция отправлена: {txHash}
             </div>
           )}
           {status === 'error' && txError && (
             <div className="p-3 rounded-xl text-xs"
-                 style={{ background: 'rgba(216,15,22,0.08)', border: '1px solid rgba(216,15,22,0.22)', color: '#ff6b70' }}>
+                 style={{ background: 'rgba(216,15,22,0.06)', border: '1px solid rgba(216,15,22,0.20)', color: '#D80F16' }}>
               {txError}
             </div>
           )}
@@ -213,7 +213,7 @@ export default function TransactionEstimator({ predictions, gasUnits, ethPriceUs
         {/* RIGHT: расчёт */}
         <div className="space-y-4">
           <div className="glass-card p-5 space-y-4">
-            <p className="text-xs uppercase tracking-widest" style={{ color: 'rgba(0,152,175,0.55)' }}>Оценка стоимости</p>
+            <p className="text-xs uppercase tracking-widest" style={{ color: 'rgba(37,101,105,0.65)' }}>Оценка стоимости</p>
 
             <div className="space-y-2 text-sm">
               <Row label="Тип"          value={unit?.label ?? '—'} />
@@ -222,7 +222,7 @@ export default function TransactionEstimator({ predictions, gasUnits, ethPriceUs
               <Row label="Priority fee" value={pred ? `${pred.priority_fee_gwei.toFixed(4)} Gwei` : '—'} mono />
             </div>
 
-            <div className="pt-4 space-y-2" style={{ borderTop: '1px solid rgba(0,152,175,0.10)' }}>
+            <div className="pt-4 space-y-2" style={{ borderTop: '1px solid rgba(37,101,105,0.12)' }}>
               <Row label="Комиссия (ETH)"
                    value={gasCostEth ? `${gasCostEth.toFixed(6)} ETH` : '—'} mono />
               <Row label={`Комиссия (${currency === 'RUB' ? '₽' : '$'})`}
@@ -231,13 +231,13 @@ export default function TransactionEstimator({ predictions, gasUnits, ethPriceUs
             </div>
           </div>
 
-          <div className="glass-card p-5 text-xs space-y-1 leading-relaxed" style={{ color: 'rgba(255,255,255,0.38)' }}>
-            <p className="font-medium mb-2" style={{ color: 'rgba(255,255,255,0.6)' }}>Как это работает</p>
+          <div className="glass-card p-5 text-xs space-y-1 leading-relaxed" style={{ color: 'rgba(37,101,105,0.65)' }}>
+            <p className="font-medium mb-2" style={{ color: 'rgba(37,101,105,0.85)' }}>Как это работает</p>
             <p>
               Прогноз комиссии рассчитывается моделями LightGBM, обученными на исторических данных
               блокчейна Ethereum. Модели предсказывают{' '}
-              <strong style={{ color: '#0098AF' }}>base fee</strong> и{' '}
-              <strong style={{ color: '#0098AF' }}>priority fee</strong> для каждого горизонта.
+              <strong style={{ color: '#256569' }}>base fee</strong> и{' '}
+              <strong style={{ color: '#256569' }}>priority fee</strong> для каждого горизонта.
             </p>
             <p className="mt-2">
               Итоговая стоимость = (base_fee + priority_fee) × gas_limit × курс ETH/{currency}.
@@ -254,9 +254,9 @@ function Row({ label, value, mono = false, highlight = false }: {
 }) {
   return (
     <div className="flex justify-between gap-2">
-      <span className="text-white/40">{label}</span>
+      <span style={{ color: 'rgba(37,101,105,0.6)' }}>{label}</span>
       <span className={mono ? 'font-mono' : ''}
-            style={highlight ? { color: '#0098AF', fontWeight: 600 } : { color: 'rgba(255,255,255,0.78)' }}>
+            style={highlight ? { color: '#256569', fontWeight: 600 } : { color: '#0f2424' }}>
         {value}
       </span>
     </div>
